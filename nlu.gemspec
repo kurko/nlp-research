@@ -19,9 +19,9 @@ Gem::Specification.new do |s|
   s.files = [
     "README.md",
     "nlu.rb",
-    "nlu-generalization/**/*",
-    "nlu-timeline/**/*",
-    "sentence-organization/**/*",
+    "nlu_generalization/**/*",
+    "nlu_timeline/**/*",
+    "sentence_organization/**/*",
     "spec/**/*"
   ]
 
