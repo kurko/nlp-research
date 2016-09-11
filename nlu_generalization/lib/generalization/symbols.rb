@@ -1,7 +1,11 @@
 module NLU
   class Generalization
     class Symbols
+      class UnknownRuleType < StandardError; end
+
       include Enumerable
+
+      attr_reader :base
 
       def initialize
         @base = []
@@ -34,18 +38,45 @@ module NLU
         belongs_to: nil,
         parse_rule: nil
       )
+        rule = symbol || parse_rule
+
         @base << {
           symbol:     symbol,
           type:       type,
           belongs_to: belongs_to,
-          parse_rule: parse_rule
+          parse_rule: parse_rule,
+          token_length: calculate_length(rule)
         }
         self
       end
 
-       def each(&block)
-         @base.each(&block)
-       end
+      def each(&block)
+        @base.each(&block)
+      end
+
+      private
+
+      def calculate_length(rule)
+        if rule.is_a?(String)
+          if typed_string?(rule)
+            # Removes typed strings to avoid spaces in them such as
+            # "[type:unknown:wat wat]"
+            #
+            rule = rule.gsub(/\[(.*?)\]/, '[symbol]')
+            rule.split(" ").count
+          else
+            rule.split(" ").count
+          end
+        elsif rule.is_a?(Regexp)
+          rule.source.scan(/(\\s| )/).size + 1
+        else
+          raise UnknownRuleType
+        end
+      end
+
+      def typed_string?(str)
+        !!str.match(/(\[|\])/)
+      end
     end
   end
 end

@@ -2,7 +2,7 @@
 #require 'awesome_print'
 require 'nlu'
 require 'nlu_generalization/lib/generalization/symbols'
-require 'nlu_generalization/lib/generalization/type_knowledge'
+require 'nlu_generalization/lib/generalization/typed_string'
 require 'nlu_generalization/lib/generalization/concept_word'
 require 'nlu_generalization/lib/generalization/effect'
 require 'nlu_generalization/lib/generalization/sentence'
@@ -80,6 +80,7 @@ module NLU
 
       unless @learned[effect][:generalizations].include?(generalizations)
         @learned[effect][:generalizations] << generalizations
+        @learned[effect][:generalizations] = @learned[effect][:generalizations].flatten.uniq
       end
 
       @learned
@@ -95,16 +96,16 @@ module NLU
     def effect_from_cause(cause)
       effect = Generalization::Effect.new(
         cause: cause,
-        generalization: self
+        learned: @learned,
+        symbols: @symbols
       ).calculate
       [effect].flatten.compact
     end
 
     def generalize(sentence)
-      words = Sentence.new(sentence).tokenize
-      words.map do |word|
-        ConceptWord.new(word, @symbols).typed_function
-      end
+      sentence = Sentence.new(sentence).tokenize.join(" ")
+
+      Generalization::TypedString.new(@symbols).is_a(sentence)
     end
 
     private

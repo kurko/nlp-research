@@ -9,17 +9,17 @@ RSpec.describe NLU::Generalization::Effect do
 
   describe "#calculate" do
     context 'direct lesson to usage' do
-      let(:learned) do
-        generalization = NLU::Generalization.new(symbols: symbols)
-        generalization.teach(cause: 'i want a ford', effect: :search_car)
-        generalization.teach(cause: 'i want a gm', effect: :search_car)
-      end
-
       let(:symbols) do
         symbols = NLU::Generalization::Symbols.new
         symbols.add(type: 'subject', symbol: 'i')
         symbols.add(type: 'make',    symbol: 'ford')
         symbols.add(type: 'make',    parse_rule: /gm/)
+      end
+
+      let(:learned) do
+        generalization = NLU::Generalization.new(symbols: symbols)
+        generalization.teach(cause: 'i want a ford', effect: :search_car)
+        generalization.teach(cause: 'i want a gm', effect: :search_car)
       end
 
       let(:cause) { 'i want a ford' }
@@ -29,8 +29,6 @@ RSpec.describe NLU::Generalization::Effect do
           fn: :search_car,
           attrs: {
             subject: "i",
-            want: "want",
-            a: "a",
             make: "ford"
           },
           score: 1.0}]
@@ -39,6 +37,14 @@ RSpec.describe NLU::Generalization::Effect do
     end
 
     context 'complex lesson to usage' do
+      let(:symbols) do
+        symbols = NLU::Generalization::Symbols.new
+        symbols.add(type: 'subject', symbol: 'i')
+        #symbols.add(type: 'subject_wants', symbol: '[type:subject] want')
+        symbols.add(type: 'make',    symbol: 'ford')
+        symbols.add(type: 'make',    parse_rule: /gm/)
+      end
+
       let(:learned) do
         generalization = NLU::Generalization.new(symbols: symbols)
         generalization.teach(cause: 'i want a ford', effect: :search_car)
@@ -46,22 +52,14 @@ RSpec.describe NLU::Generalization::Effect do
         generalization.teach(cause: 'i want a gm',   effect: :search_gm_specifically)
       end
 
-      let(:symbols) do
-        symbols = NLU::Generalization::Symbols.new
-        symbols.add(type: 'subject', symbol: 'i')
-        symbols.add(type: 'make',    symbol: 'ford')
-        symbols.add(type: 'make',    parse_rule: /gm/)
-      end
-
       let(:cause) { 'i want a gm' }
 
       it "finds the cause" do
+        #ap learned
         expect(subject.calculate).to eq([{
           fn: :search_car,
           attrs: {
             subject: "i",
-            want: "want",
-            a: "a",
             make: "gm"
           },
           score: 1.0
@@ -69,8 +67,6 @@ RSpec.describe NLU::Generalization::Effect do
           fn: :search_gm_specifically,
           attrs: {
             subject: "i",
-            want: "want",
-            a: "a",
             make: "gm"
           },
           score: 1.0

@@ -33,12 +33,6 @@ module CarsKnowledgeBase
     # `model` are things that identify the car, closer to its nomenclature/id.
     symbols.add(type: 'cc', parse_rule: '[type:number].[type:number]', belongs_to: 'car')
 
-    {
-      cc: '1.0',
-      object: 'car',
-      state: 'new'
-    }
-
     #symbols.add(symbol: 'hello', type: 'greeting')
     symbols
   end

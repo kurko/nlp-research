@@ -1,3 +1,4 @@
+# TODO remove
 module NLU
   class Generalization
     class ConceptWord
