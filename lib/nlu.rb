@@ -4,7 +4,7 @@ require 'bundler/setup'
 Bundler.require(:development)
 require 'text'
 
-require 'nlu_generalization/lib/generalization'
+require_relative '../nlu_generalization/lib/generalization'
 
 module NLU
 end

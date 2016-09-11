@@ -16,7 +16,12 @@ Gem::Specification.new do |s|
   s.email    = "chavedomundo@gmail.com"
   s.homepage = "http://github.com/kurko/nlu"
 
-  s.files = Dir.glob("{nlu_generalization,nlu_timeline,sentence_organization}/**/*") + %w(nlu.rb README.md)
+  s.files = Dir.glob("{nlu_generalization,nlu_timeline,sentence_organization,lib}/**/*") + %w(README.md)
+
+  s.require_paths = [
+    ".",
+    "lib",
+  ]
 
   s.add_dependency "text", "~>1.3.1"
 
