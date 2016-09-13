@@ -166,3 +166,4 @@ See the example below:
 ## Roadmap
 
 * upcased vs downcased symbols don't generalize well
+* `i want a ford` isn't matched with `want a ford`
