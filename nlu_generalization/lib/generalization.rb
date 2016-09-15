@@ -1,5 +1,3 @@
-#require 'pry'
-#require 'awesome_print'
 require 'nlu'
 require 'nlu_generalization/lib/generalization/symbols'
 require 'nlu_generalization/lib/generalization/typed_string'

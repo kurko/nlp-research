@@ -55,6 +55,7 @@ RSpec.describe NLU::Generalization::Effect do
       let(:cause) { 'i want a gm' }
 
       it "finds the cause" do
+        skip "we are not doing yet composite types because we need to define how attributes would look then"
         #ap learned
         expect(subject.calculate).to eq([{
           fn: :search_car,
