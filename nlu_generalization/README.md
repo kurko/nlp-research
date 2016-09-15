@@ -161,9 +161,3 @@ See the example below:
         },
         score: '1.0'
       }
-
-
-## Roadmap
-
-* upcased vs downcased symbols don't generalize well
-* `i want a ford` isn't matched with `want a ford`
