@@ -7,6 +7,12 @@ module NLU
         @symbols = symbols
       end
 
+      # This will:
+      #
+      # 1. take what was learned (generalizations)
+      # 2. generalize the new sentence
+      # 3. check whether both generalizations match
+      #
       def calculate
         initial_candidates = []
         final_candidates = []
@@ -14,8 +20,7 @@ module NLU
         generalized_cause = NLU::Generalization.new(symbols: @symbols).generalize(@cause)
 
         #ap "sentence: #{cause_sentence}"
-        #ap "learned:"
-        #ap @learned
+        #ap "learned: #{@learned.inspect}"
 
         # We go through everything that was learned before
         @learned.each do |function_name, criteria|
@@ -35,17 +40,37 @@ module NLU
             # generalization.
             generalized_cause.each_with_index do |cause_rule, cause_index|
 
-              #ap "generalized_cause #{cause_rule}"
-              #ap "generalization #{generalization}"
+              #ap "generalization(#{generalization}) == cause_rule(#{cause_rule})"
+
+              # Wildcard
+              #
+              # Matches these:
+              #
+              #   > i want a [type:wildcard]
+              #   > i want a ford
+              #
+              wildcard = "[#{NLU::Generalization::RESERVED_TYPES[:wildcard]}]"
+              wildcard_regex = Regexp.escape(wildcard)
+              if generalization =~ Regexp.new(wildcard_regex, Regexp::IGNORECASE)
+                #ap "true -> #{generalization} =~ /#{Regexp.new(wildcard_regex, Regexp::IGNORECASE)}/i"
+
+                rule = generalization.gsub("#{wildcard}", "(.+)")
+                if value = cause_sentence.join(" ").match(Regexp.new(rule, Regexp::IGNORECASE))
+                  value = value[-1]
+                  prop = type_as_param(wildcard)
+
+                  local_candidate = local_candidate.merge({
+                    attrs: {
+                      prop => value
+                    },
+                    score: 0.75
+                  })
+                end
 
               # If we find a learned generalization that matches the generalized
               # sentence, we will save it.
-              if generalization == cause_rule
+              elsif generalization == cause_rule
 
-                #ap ""
-                #ap cause_rule.split(" ")
-                #ap cause_sentence
-                #ap "generalization #{generalization}"
                 cause_rule.split(" ").each_with_index do |typed_string, index|
 
                   # If the learned generalization has a type anywhere, we will
@@ -101,7 +126,7 @@ module NLU
         initial_candidates = normalize_scores(initial_candidates)
 
         initial_candidates.each do |candidate|
-          if candidate[:score] > 0.75
+          if candidate[:score] >= 0.75
             final_candidates << candidate
           end
         end

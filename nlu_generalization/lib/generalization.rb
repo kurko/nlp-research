@@ -20,6 +20,10 @@ require 'nlu_generalization/lib/generalization/sentence'
 #
 module NLU
   class Generalization
+    RESERVED_TYPES = {
+      wildcard: "type:wildcard",
+    }.freeze
+
     REGEX_POSSIBILITIES = [
       ".",
       "[a-z]+",

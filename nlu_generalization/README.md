@@ -66,6 +66,12 @@ restaurant and clothing symbols belonging to the _category_ type.
   These differences can be tracked via dictionaries or neural nets, whatever
   proves to be more efficient in the short and long-term.
 
+## Reserved types
+
+Some types have predefined features and are reserved.
+
+    wildcard
+
 ## Features
 
 ### Token generalization

@@ -22,8 +22,9 @@ RSpec.describe NLU::Generalization::TypedString do
     context 'single-level hierarchical symbols' do
       let(:symbols) do
         symbols = NLU::Generalization::Symbols.new
-        symbols.add(symbol: 'ford', type: 'make')
-        symbols.add(type: 'make', parse_rule: /gm/)
+        symbols.add(type: 'wildcard', symbol: "[wildcard]")
+        symbols.add(type: 'make',     symbol: 'ford')
+        symbols.add(type: 'make',     parse_rule: /gm/)
       end
 
       context "single word" do
@@ -43,17 +44,38 @@ RSpec.describe NLU::Generalization::TypedString do
       end
 
       context "multiple words" do
-        it "generalizes to types" do
-          result = subject.is_a("super ford")
-          expect(result).to match_array [
-            "super [type:make]",
-            "super ford"
-          ]
+        context 'prefixed' do
+          it "generalizes to types" do
+            result = subject.is_a("super ford")
+            expect(result).to match_array [
+              "super [type:make]",
+              "super ford"
+            ]
 
-          result = subject.is_a("gm")
-          expect(result).to match_array [
-            "[type:make]",
-            "gm"
+            result = subject.is_a("gm")
+            expect(result).to match_array [
+              "[type:make]",
+              "gm"
+            ]
+          end
+        end
+
+        context 'suffixed' do
+          it "generalizes to types" do
+            result = subject.is_a("i want a ford focus")
+            expect(result).to match_array [
+              "i want a [type:make] focus",
+              "i want a ford focus"
+            ]
+          end
+        end
+      end
+
+      context 'with wildcards' do
+        it 'converts the wildcards to wildcards' do
+          expect(subject.is_a("I want a [wildcard]")).to match_array [
+            'I want a [wildcard]',
+            'I want a [type:wildcard]'
           ]
         end
       end
@@ -110,15 +132,17 @@ RSpec.describe NLU::Generalization::TypedString do
       end
 
       context 'a sentence' do
-        it "generalizes to types" do
-          expect(subject.is_a("I")).to    match_array ["I"]
-          expect(subject.is_a("want")).to match_array ["want"]
-          expect(subject.is_a("a")).to    match_array ["a"]
-          expect(subject.is_a("gm")).to   match_array [
-            "gm",
-            "[type:car]",
-            "[type:make]"
-          ]
+        context 'standard sentence' do
+          it "generalizes to types" do
+            expect(subject.is_a("I")).to    match_array ["I"]
+            expect(subject.is_a("want")).to match_array ["want"]
+            expect(subject.is_a("a")).to    match_array ["a"]
+            expect(subject.is_a("gm")).to   match_array [
+              "gm",
+              "[type:car]",
+              "[type:make]"
+            ]
+          end
         end
       end
     end
