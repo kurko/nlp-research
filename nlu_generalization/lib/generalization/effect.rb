@@ -14,8 +14,7 @@ module NLU
       # 3. check whether both generalizations match
       #
       def calculate
-        initial_candidates = []
-        final_candidates = []
+        candidates = []
 
         generalized_cause = NLU::Generalization.new(symbols: @symbols).generalize(@cause)
 
@@ -118,19 +117,16 @@ module NLU
             end
 
             if local_candidate[:score] > 0
-              initial_candidates << local_candidate
+              candidates << local_candidate
             end
           end
         end
 
-        initial_candidates = normalize_scores(initial_candidates)
+        candidates = normalize_scores(candidates)
+        candidates = pick_candidates(candidates)
+        candidates = merge_attributes(candidates)
 
-        initial_candidates.each do |candidate|
-          if candidate[:score] >= 0.75
-            final_candidates << candidate
-          end
-        end
-        final_candidates
+        candidates
       end
 
       private
@@ -150,6 +146,57 @@ module NLU
           candidate[:score] = candidate[:score] / max_score
           candidate
         end
+      end
+
+      def pick_candidates(candidates)
+        candidates.dup.keep_if { |candidate| candidate[:score] >= 0.75 }
+      end
+
+      # This takes the following:
+      #
+      #   [{
+      #     fn: :search_car,
+      #     attrs: {
+      #       make: "ford",
+      #     },
+      #     score: 1.0
+      #   }, {
+      #     fn: :search_car,
+      #     attrs: {
+      #       wildcard: "ford focus"
+      #     },
+      #     score: 0.75
+      #   }]
+      #
+      # into the following:
+      #
+      #   [{
+      #     fn: :search_car,
+      #     attrs: {
+      #       make: "ford",
+      #       wildcard: "ford focus"
+      #     },
+      #     score: 1.0
+      #   }]
+      #
+      def merge_attributes(candidates)
+        new_candidates = []
+        candidates.dup.each do |candidate|
+          not_processed_yet = new_candidates.none? { |c| c[:fn] == candidate[:fn] }
+
+          if not_processed_yet
+            corresponding_candidate = candidates.select { |c| c[:fn] == candidate[:fn] }
+            merged_attributes = corresponding_candidate
+              .map    { |c| c[:attrs] }
+              .reduce({}, :merge)
+
+            candidate[:attrs] = merged_attributes
+            candidate[:score] = corresponding_candidate.map { |c| c[:score] }.max
+            new_candidates << candidate
+          end
+        end
+
+        new_candidates
       end
 
       # Replaces [type:category] with `:category`

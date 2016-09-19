@@ -42,8 +42,8 @@ RSpec.describe NLU::Generalization::Effect, "Wildcards" do
 
       let(:learned) do
         generalization = NLU::Generalization.new(symbols: symbols)
-        generalization.teach(cause: 'eu quero um ford focus', effect: :search_car)
         generalization.teach(cause: "eu quero um [search]",   effect: :search_car)
+        generalization.teach(cause: 'eu quero um ford focus', effect: :search_car)
         generalization.learned
       end
 
@@ -53,15 +53,10 @@ RSpec.describe NLU::Generalization::Effect, "Wildcards" do
         expect(subject.calculate).to eq([{
           fn: :search_car,
           attrs: {
-            make: "ford"
-          },
-          score: 1.0
-        }, {
-          fn: :search_car,
-          attrs: {
+            make: "ford",
             wildcard: "ford focus"
           },
-          score: 0.75
+          score: 1.0
         }])
       end
     end

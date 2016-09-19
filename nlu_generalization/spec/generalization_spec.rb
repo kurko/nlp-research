@@ -117,12 +117,6 @@ RSpec.describe NLU::Generalization do
         attrs: {
           make: "ford",
           number: "1.0",
-        },
-        score: 1.0
-      }, {
-        fn: :abc,
-        attrs: {
-          make: "ford",
           cc: "1.0",
         },
         score: 1.0
