@@ -70,7 +70,7 @@ restaurant and clothing symbols belonging to the _category_ type.
 
 Some types have predefined features and are reserved.
 
-    wildcard
+* `wildcard`: will match `.*` and return `attrs: { wildcard: '.*' }`
 
 ## Features
 

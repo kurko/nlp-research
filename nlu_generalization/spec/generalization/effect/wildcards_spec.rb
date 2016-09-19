@@ -42,12 +42,12 @@ RSpec.describe NLU::Generalization::Effect, "Wildcards" do
 
       let(:learned) do
         generalization = NLU::Generalization.new(symbols: symbols)
-        generalization.teach(cause: 'i want a ford focus', effect: :search_car)
-        generalization.teach(cause: "i want a [search]",   effect: :search_car)
+        generalization.teach(cause: 'eu quero um ford focus', effect: :search_car)
+        generalization.teach(cause: "eu quero um [search]",   effect: :search_car)
         generalization.learned
       end
 
-      let(:cause) { "i want a ford focus" }
+      let(:cause) { "eu quero um ford focus" }
 
       it "matches anything in that position" do
         expect(subject.calculate).to eq([{
