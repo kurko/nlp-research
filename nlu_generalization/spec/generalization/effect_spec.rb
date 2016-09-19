@@ -34,6 +34,23 @@ RSpec.describe NLU::Generalization::Effect do
           score: 1.0}]
         )
       end
+
+      context "long no-space tokens" do
+        let(:learned) do
+          generalization = NLU::Generalization.new(symbols: symbols)
+          generalization.teach(cause: 'postback_contact_information', effect: :contact_information)
+        end
+
+        let(:cause) { 'postback_contact_information' }
+
+        it 'finds the function' do
+          expect(subject.calculate).to eq([{
+            fn: :contact_information,
+            attrs: { },
+            score: 1.0}]
+          )
+        end
+      end
     end
 
     context 'complex lesson to usage' do

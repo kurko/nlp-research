@@ -69,7 +69,6 @@ module NLU
               # If we find a learned generalization that matches the generalized
               # sentence, we will save it.
               elsif generalization == cause_rule
-
                 cause_rule.split(" ").each_with_index do |typed_string, index|
 
                   # If the learned generalization has a type anywhere, we will
@@ -110,6 +109,11 @@ module NLU
                     #ap "> type: #{type} - #{index} #{cause_sentence[index..index+type_token_length]}"
 
                     local_candidate[:attrs][type] = word_for_type.join(" ")
+
+                  # When it's just the same sentence as one seen before, no
+                  # generalizations
+                  else
+                    local_candidate[:score] = 1
                   end
                 end
 
@@ -152,6 +156,8 @@ module NLU
         candidates.dup.keep_if { |candidate| candidate[:score] >= 0.75 }
       end
 
+      # merge_attributes
+      #
       # This takes the following:
       #
       #   [{
