@@ -39,24 +39,31 @@ module NLU
             # generalization.
             generalized_cause.each_with_index do |cause_rule, cause_index|
 
-              #ap "generalization(#{generalization}) == cause_rule(#{cause_rule})"
 
               # Wildcard
               #
               # Matches these:
               #
-              #   > i want a [type:wildcard]
+              #   > i want a [type:wildcard:some_name_for_this_wildcard]
               #   > i want a ford
+              #
+              # We generalize to [type:wildcard:name_of_the_attr], so below
+              # we take the name out so that we can compare things only with
+              # [type:wildcard]. When it matches we then use the
+              # name_of_the_attr as attribute name.
               #
               wildcard = "[#{NLU::Generalization::RESERVED_TYPES[:wildcard]}]"
               wildcard_regex = Regexp.escape(wildcard)
-              if generalization =~ Regexp.new(wildcard_regex, Regexp::IGNORECASE)
-                #ap "true -> #{generalization} =~ /#{Regexp.new(wildcard_regex, Regexp::IGNORECASE)}/i"
+              if generalization =~ /wildcard/i
+                wildcard_generalization = generalization.gsub(/\[(type:wildcard)(.+)\]/i, '[\1]')
+              end
 
-                rule = generalization.gsub("#{wildcard}", "(.+)")
+              if wildcard_generalization.to_s =~ Regexp.new(wildcard_regex, Regexp::IGNORECASE)
+
+                rule = wildcard_generalization.gsub("#{wildcard}", "(.+)")
                 if value = cause_sentence.join(" ").match(Regexp.new(rule, Regexp::IGNORECASE))
                   value = value[-1]
-                  prop = type_as_param(wildcard)
+                  prop = attr_name_from_type_param(generalization)
 
                   local_candidate = local_candidate.merge({
                     attrs: {
@@ -88,7 +95,7 @@ module NLU
                   #
                   if typed_string =~ /\[type/i
                     local_candidate[:score] += 1
-                    type = type_as_param(typed_string)
+                    type = attr_name_from_type_param(typed_string)
                     prop = type_properties(type)
                     type_token_length = prop[:token_length]
 
@@ -206,8 +213,10 @@ module NLU
       end
 
       # Replaces [type:category] with `:category`
-      def type_as_param(type)
+      def attr_name_from_type_param(type)
         type
+          .split(":")
+          .last
           .gsub(/\[.*:/, '')
           .gsub(/\]/, '')
           .to_sym

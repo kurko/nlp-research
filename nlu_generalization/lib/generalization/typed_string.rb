@@ -14,9 +14,9 @@ module NLU
         #puts "INPUT: #{sentence.to_s}", loop_guard
 
         @symbols.each do |symbol_properties|
-          symbol = symbol_properties[:symbol]
-          type   = symbol_properties[:type].to_s
-          rule   = symbol_properties[:parse_rule] || symbol
+          symbol = symbol_properties[:symbol].dup
+          type   = symbol_properties[:type].to_s.dup
+          rule   = (symbol_properties[:parse_rule] || symbol).dup
           token_length = symbol_properties[:token_length]
 
           #puts "-> #{type}|#{rule}", loop_guard
@@ -27,10 +27,17 @@ module NLU
           result = subsentence.map do |string|
             #puts "subsentence #{subsentence}", loop_guard
 
+            # Checks if the type is reserved, such as :wildcard
+            if NLU::Generalization::RESERVED_TYPES.keys.include?(type.to_sym)
+              type_parameter = "#{type}:#{string}".gsub(/[\[\]]/, "")
+            else
+              type_parameter = type
+            end
+
             if rule.is_a?(String) && string == rule
-              "[type:#{type}]"
+              "[type:#{type_parameter}]"
             elsif rule.is_a?(Regexp) && string =~ rule
-              string.gsub(rule, "[type:#{type}]")
+              string.gsub(rule, "[type:#{type_parameter}]")
             else
               string
             end
