@@ -75,7 +75,7 @@ RSpec.describe NLU::Generalization::TypedString do
         it 'converts the wildcards to wildcards' do
           expect(subject.is_a("I want a [wildcard]")).to match_array [
             'I want a [wildcard]',
-            'I want a [type:wildcard]'
+            'I want a [type:wildcard:wildcard]'
           ]
         end
       end

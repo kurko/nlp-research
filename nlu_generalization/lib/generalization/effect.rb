@@ -34,6 +34,8 @@ module NLU
               score: 0.0
             }
 
+            #ap "generalized_cause #{generalized_cause}"
+
             # We then generalize the cause sentence and go through it.
             # We will match *each* learned generalization against the cause
             # generalization.
@@ -47,20 +49,20 @@ module NLU
               #   > i want a [type:wildcard:some_name_for_this_wildcard]
               #   > i want a ford
               #
-              # We generalize to [type:wildcard:name_of_the_attr], so below
-              # we take the name out so that we can compare things only with
-              # [type:wildcard]. When it matches we then use the
-              # name_of_the_attr as attribute name.
-              #
               wildcard = "[#{NLU::Generalization::RESERVED_TYPES[:wildcard]}]"
+              #ap "wildcard: #{wildcard}"
               wildcard_regex = Regexp.escape(wildcard)
               if generalization =~ /wildcard/i
-                wildcard_generalization = generalization.gsub(/\[(type:wildcard)(.+)\]/i, '[\1]')
+                wildcard_generalization = generalization
+                  .gsub(/\[(type:wildcard)(.+)\]/i, '[\1]')
               end
-
+              #ap "wildcard_generalization(#{wildcard_generalization}) =~ cause_rule(#{wildcard_regex})"
               if wildcard_generalization.to_s =~ Regexp.new(wildcard_regex, Regexp::IGNORECASE)
+               #ap "true -> #{wildcard_generalization} =~ /#{Regexp.new(wildcard_regex, Regexp::IGNORECASE)}/i"
 
                 rule = wildcard_generalization.gsub("#{wildcard}", "(.+)")
+                #ap "rule #{rule}"
+                #binding.pry
                 if value = cause_sentence.join(" ").match(Regexp.new(rule, Regexp::IGNORECASE))
                   value = value[-1]
                   prop = attr_name_from_type_param(generalization)
@@ -133,7 +135,8 @@ module NLU
           end
         end
 
-        candidates = normalize_scores(candidates)
+        # TODO - normalization is taking out some elements that are good.
+        #candidates = normalize_scores(candidates)
         candidates = pick_candidates(candidates)
         candidates = merge_attributes(candidates)
 
@@ -214,6 +217,7 @@ module NLU
 
       # Replaces [type:category] with `:category`
       def attr_name_from_type_param(type)
+        #ap "type #{type}"
         type
           .split(":")
           .last

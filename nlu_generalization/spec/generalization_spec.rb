@@ -119,7 +119,7 @@ RSpec.describe NLU::Generalization do
           number: "1.0",
           cc: "1.0",
         },
-        score: 1.0
+        score: 3.0
       }]
 
       #ap subject.teach("10 in restaurant", fn: :create_entry)

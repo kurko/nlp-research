@@ -14,8 +14,8 @@ module NLU
         #puts "INPUT: #{sentence.to_s}", loop_guard
 
         @symbols.each do |symbol_properties|
-          symbol = symbol_properties[:symbol].dup
-          type   = symbol_properties[:type].to_s.dup
+          symbol = symbol_properties[:symbol].dup    if symbol_properties[:symbol]
+          type   = symbol_properties[:type].to_s.dup if symbol_properties[:type]
           rule   = (symbol_properties[:parse_rule] || symbol).dup
           token_length = symbol_properties[:token_length]
 

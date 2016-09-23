@@ -31,7 +31,7 @@ RSpec.describe NLU::Generalization::Effect do
             subject: "i",
             make: "ford"
           },
-          score: 1.0}]
+          score: 2.0}]
         )
       end
 
@@ -79,14 +79,14 @@ RSpec.describe NLU::Generalization::Effect do
             subject: "i",
             make: "gm"
           },
-          score: 1.0
+          score: 2.0
         }, {
           fn: :search_gm_specifically,
           attrs: {
             subject: "i",
             make: "gm"
           },
-          score: 1.0
+          score: 2.0
         }])
       end
     end
