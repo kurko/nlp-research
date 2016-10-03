@@ -96,5 +96,34 @@ RSpec.describe NLU::Generalization::Effect, "Wildcards" do
         }])
       end
     end
+
+    context "a wildcard for the entire sentence and a known symbol" do
+      let(:symbols) do
+        symbols = NLU::Generalization::Symbols.new
+        symbols.add(type: "wildcard", symbol: "[query]")
+        symbols.add(type: 'make',     symbol: 'ford')
+        symbols.add(type: 'make',     symbol: 'gm')
+      end
+
+      let(:learned) do
+        generalization = NLU::Generalization.new(symbols: symbols)
+        generalization.teach(cause: 'eu quero um ford', effect: :search_car)
+        generalization.teach(cause: "[query]",          effect: :search_car)
+        generalization.learned
+      end
+
+      let(:cause) { "eu quero um ford" }
+
+      it "matches anything in that position" do
+        expect(subject.calculate).to eq([{
+          fn: :search_car,
+          attrs: {
+            make:   "ford",
+            query:  "eu quero um ford",
+          },
+          score: 2.0
+        }])
+      end
+    end
   end
 end
